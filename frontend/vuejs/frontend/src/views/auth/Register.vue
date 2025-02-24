@@ -1,56 +1,26 @@
 <script setup lang="ts">
-import axiosInstance from "@/lib/axios.ts";
-import { AxiosError } from "axios";
-import { reactive } from "vue";
-
-interface RegisterForm {
-    name: string;
-    email: string;
-    password: string;
-    password_confirmation: string;
-}
-
-const form = reactive<RegisterForm>({
-    name: "",
-    email: "",
-    password: "",
-    password_confirmation: "",
-});
-
-const errors = reactive({
-    name: [],
-    email: [],
-    password: [],
-});
-
-const register = async (payload: RegisterForm) => {
-    await axiosInstance.get("/sanctum/csrf-cookie", {
-        baseURL: "http://localhost:8000"
-    });
-
-    errors.name = [];
-    errors.email = [];
-    errors.password = [];
-    
-    try {
-        await axiosInstance.post("register",payload);
-    } catch (e)
-    {
-        console.log('error', e)
-        if(e instanceof AxiosError &&  e.response?.status === 422)
-        {
-            errors.name = e.response.data.errors.name;
-            errors.email = e.response.data.errors.email;
-            errors.password = e.response.data.errors.password;
-        }
-    }
-}
+import { useAuthStore } from "@/store/auth";
+const { register } = useAuthStore();
 
 </script>
 <template>
     <h1 class="text-3xl p-4 mx-auto">Register</h1>
 
-    <form @submit.prevent="register(form)"
+    <div class="max-w-md mx-auto bg-slate-700 rounded-lg p-4">
+        <FormKit
+            type="form"
+            submit-label="Register"
+            @submit="register"
+            class="max-w-sm mx-auto p-4 bg-white rounded-lg shadow-md dark:bg-gray-950"
+        >
+            <FormKit type="text" label="Name" name="name" />
+            <FormKit type="email" label="email" name="email" />
+            <FormKit type="password" label="Password" name="password" />
+            <FormKit type="password" label="Password Confirmation" name="password_confirmation" />
+        </FormKit>
+    </div>
+
+    <!-- <form @submit.prevent="register(form)"
         class="max-w-sm mx-auto p-4 bg-white rounded-lg shadow-md dark:bg-gray-800">
         <div class="mb-5">
             <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your name</label>
@@ -98,6 +68,6 @@ const register = async (payload: RegisterForm) => {
     <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
         Register
     </button>
-    </form>
+    </form> -->
 
 </template>

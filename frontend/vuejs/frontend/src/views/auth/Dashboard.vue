@@ -1,38 +1,23 @@
 <script setup lang="ts">
 import axiosInstance from "@/lib/axios.ts";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
+import type { User } from "@/types";
+import { useAuthStore } from "@/store/auth";
 
-const user = ref({
-    name: "",
-    email: "",
+const auth = useAuthStore();
+
+onMounted(async () => {
+    if(!auth.isLoggedIn) auth.getUser();
 });
 
-const getUser = async () => {
-    try {
-        const response = await axiosInstance.get("user");
-        user.value = response.data;
-        console.log(response.data);
-    } catch (error) {
-        console.log(error);
-    }
-}
-
-const logout = async () => {
-    await axiosInstance.post("logout");
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    window.location.href = "/login";
-}
-
-getUser();
 </script>
 <template>
     <h1 class="text-3xl text-slate-200 ">Dashboard</h1>
     <div class="flex justify-between items-center">
         <div>
-            <p class="text-slate-200">Welcome, {{ user?.name }}</p>
-            <p class="text-slate-200">Email: {{ user?.email }}</p>
+            <p class="text-slate-200">Welcome, {{ auth.user?.name }}</p>
+            <p class="text-slate-200">Email: {{ auth.user?.email }}</p>
         </div>
-        <button @click="logout" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Logout</button>
+        <button @click="auth.logout" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Logout</button>
     </div>
 </template>
